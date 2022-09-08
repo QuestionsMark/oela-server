@@ -1,3 +1,8 @@
+export interface Img {
+    id: string;
+    alt: string;
+}
+
 export interface MulterFile {
     filename: string;
     size: number;
