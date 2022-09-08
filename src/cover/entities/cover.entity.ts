@@ -12,6 +12,6 @@ export class Cover extends BaseEntity {
     })
     createdAt: Date;
 
-    @OneToOne(() => FileItem, e => e.cover)
+    @OneToOne(() => FileItem)
     image: FileItem;
 }

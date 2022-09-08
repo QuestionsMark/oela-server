@@ -20,11 +20,11 @@ export class FileItem extends BaseEntity {
     @ManyToOne(() => Collection, e => e.images)
     collection: Collection;
 
-    @OneToOne(() => News, e => e.image)
+    @OneToOne(() => News)
     @JoinColumn()
     news: News;
 
-    @OneToOne(() => Cover, e => e.image)
+    @OneToOne(() => Cover)
     @JoinColumn()
     cover: Cover;
 }

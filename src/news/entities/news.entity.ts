@@ -23,6 +23,6 @@ export class News extends BaseEntity {
     })
     createdAt: Date;
 
-    @OneToOne(() => FileItem, e => e.news)
+    @OneToOne(() => FileItem)
     image: FileItem;
 }
