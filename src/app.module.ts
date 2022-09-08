@@ -11,6 +11,7 @@ import { HashtagModule } from './hashtag/hashtag.module';
 import { NewsModule } from './news/news.module';
 import { FileModule } from './file/file.module';
 import { DB_CONNECTION } from './config/db.config';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,7 +23,8 @@ import { DB_CONNECTION } from './config/db.config';
     CoverModule,
     HashtagModule,
     NewsModule,
-    FileModule
+    FileModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
