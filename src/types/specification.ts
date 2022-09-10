@@ -3,3 +3,8 @@ export interface SpecificationInterface {
     name: string;
     value: string;
 }
+
+export interface CreateSpecificationInterface {
+    name: string;
+    value: string;
+}

@@ -18,7 +18,12 @@ export class UserService {
     
     await newUser.save();
     
-    return getServerResponse(201, 'User has been successfully created!');
+    return getServerResponse('User has been successfully created!');
+  }
+
+  async checkIsAdminAccount(): Promise<boolean> {
+    const user = await User.findOne({ where: {} });
+    return user !== null;
   }
 
   findAll() {

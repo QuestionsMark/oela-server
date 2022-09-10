@@ -1,26 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { getServerResponse } from '../utils/response.util';
+import { PaginationResponse, ServerResponse } from '../types';
 import { CreateProductTypeDto } from './dto/create-product-type.dto';
-import { UpdateProductTypeDto } from './dto/update-product-type.dto';
+import { ProductType } from './entities/product-type.entity';
+import { Product } from 'src/product/entities/product.entity';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class ProductTypeService {
-  create(createProductTypeDto: CreateProductTypeDto) {
-    return 'This action adds a new productType';
+  async create(createProductTypeDto: CreateProductTypeDto) {
+    const { name } = createProductTypeDto;
+    const newProductType = new ProductType();
+    newProductType.name = name;
+    await newProductType.save();
+    return getServerResponse('Product type has been successfully added!');
   }
 
-  findAll() {
-    return `This action returns all productType`;
+  async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<ProductType[]>> {
+    const [results, count] = await ProductType.findAndCount({
+      where: { name: Like(`%${search}%`) },
+    });
+    return { count, results };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} productType`;
+  async findAllForForm(): Promise<ProductType[]> {
+    return ProductType.find();
   }
 
-  update(id: number, updateProductTypeDto: UpdateProductTypeDto) {
-    return `This action updates a #${id} productType`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} productType`;
+  async remove(id: string): Promise<ServerResponse> {
+    const productType = await ProductType.findOneOrFail({ where: { id } });
+    const products = await Product.find({
+      relations: ['productType'],
+    });
+    const withProductType = products.filter(p => p.productType.id === id);
+    if (withProductType.length !== 0) throw new BadRequestException(`Product types that are in use, cannot be removed! Products that use this type: ${withProductType.map(p => p.name).join(', ')}.`);
+    await productType.remove();
+    return getServerResponse('Product type has been successfully removed!');
   }
 }

@@ -7,6 +7,7 @@ export class Hashtag extends BaseEntity {
     id: string;
 
     @Column({
+        unique: true,
         length: 100,
     })
     name: string;

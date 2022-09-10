@@ -55,11 +55,11 @@ export class AuthService {
     
           return res
             .cookie(CookieName.AuthToken, token.accessToken, COOKIES_CONFIG)
-            .json(getServerResponse(200, 'Successfully logged in!'))
+            .json(getServerResponse('Successfully logged in!'))
         } catch (e) {
-          if (e instanceof UnauthorizedException) return res.json(getServerResponse(e.getStatus(), e.message));
+          if (e instanceof UnauthorizedException) return res.status(e.getStatus()).json(getServerResponse(e.message));
           console.error(e);
-          return res.json(getServerResponse(500, 'Something went wrong, try again later.'));
+          return res.status(500).json(getServerResponse('Something went wrong, try again later.'));
         }
       }
     
@@ -68,10 +68,10 @@ export class AuthService {
           user.currentTokenId = null;
           await user.save();
           res.clearCookie(CookieName.AuthToken, COOKIES_CONFIG);
-          return res.json(getServerResponse(200, 'Successfully logged out!'));
+          return res.status(200).json(getServerResponse('Successfully logged out!'));
         } catch (e) {
           console.error(e);
-          return res.json(getServerResponse(500, 'Something went wrong, try again later.'));
+          return res.status(500).json(getServerResponse('Something went wrong, try again later.'));
         }
       }
 }

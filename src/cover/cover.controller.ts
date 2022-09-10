@@ -1,34 +1,48 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { multerStorage, multerStorageDir } from '../utils/storage.util';
+import { MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
 import { CoverService } from './cover.service';
 import { CreateCoverDto } from './dto/create-cover.dto';
-import { UpdateCoverDto } from './dto/update-cover.dto';
+import { Cover } from './entities/cover.entity';
 
-@Controller('cover')
+@Controller('/cover')
 export class CoverController {
   constructor(private readonly coverService: CoverService) {}
 
   @Post()
-  create(@Body() createCoverDto: CreateCoverDto) {
-    return this.coverService.create(createCoverDto);
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      {
+        name: 'image',
+        maxCount: 10,
+      },
+    ], {
+      storage: multerStorage(multerStorageDir()),
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  create(
+    @Body() createCoverDto: CreateCoverDto,
+    @UploadedFiles() files: MulterDiskUploadedFiles,
+  ): Promise<ServerResponse> {
+    return this.coverService.create(createCoverDto, files);
   }
 
   @Get()
-  findAll() {
-    return this.coverService.findAll();
+  findAll(
+    @Query('page') page: number, 
+    @Query('limit') limit: number,
+  ): Promise<PaginationResponse<Cover[]>> {
+    return this.coverService.findAll(page, limit);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coverService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCoverDto: UpdateCoverDto) {
-    return this.coverService.update(+id, updateCoverDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.coverService.remove(+id);
+  @Delete('/:id')
+  remove(
+    @Param('id') id: string,
+  ): Promise<ServerResponse> {
+    return this.coverService.remove(id);
   }
 }

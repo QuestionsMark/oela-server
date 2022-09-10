@@ -1,34 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
 import { HashtagService } from './hashtag.service';
 import { CreateHashtagDto } from './dto/create-hashtag.dto';
-import { UpdateHashtagDto } from './dto/update-hashtag.dto';
+import { Hashtag } from './entities/hashtag.entity';
+import { PaginationResponse, ServerResponse } from '../types';
 
-@Controller('hashtag')
+@Controller('/hashtag')
 export class HashtagController {
   constructor(private readonly hashtagService: HashtagService) {}
 
   @Post()
-  create(@Body() createHashtagDto: CreateHashtagDto) {
+  create(
+    @Body() createHashtagDto: CreateHashtagDto,
+  ): Promise<ServerResponse> {
     return this.hashtagService.create(createHashtagDto);
   }
 
   @Get()
-  findAll() {
-    return this.hashtagService.findAll();
+  findAll(
+    @Query('search') search: string, 
+    @Query('page') page: number, 
+    @Query('limit') limit: number,
+  ): Promise<PaginationResponse<Hashtag[]>> {
+    return this.hashtagService.findAll(search, page, limit);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.hashtagService.findOne(+id);
+  @Get('/form')
+  findAllForForm(): Promise<Hashtag[]> {
+    return this.hashtagService.findAllForForm();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHashtagDto: UpdateHashtagDto) {
-    return this.hashtagService.update(+id, updateHashtagDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.hashtagService.remove(+id);
+  @Delete('/:id')
+  remove(
+    @Param('id') id: string
+  ): Promise<ServerResponse> {
+    return this.hashtagService.remove(id);
   }
 }

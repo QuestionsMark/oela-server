@@ -1,5 +1,5 @@
 import { FileItem } from '../../file/file.entity';
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity()
 export class News extends BaseEntity {
@@ -23,6 +23,6 @@ export class News extends BaseEntity {
     })
     createdAt: Date;
 
-    @OneToOne(() => FileItem)
-    image: FileItem;
+    @OneToMany(() => FileItem, e => e.news)
+    images: FileItem[];
 }

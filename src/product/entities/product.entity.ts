@@ -42,7 +42,7 @@ export class Product extends BaseEntity {
     productType: ProductType;
 
     @OneToMany(() => Specification, e => e.product)
-    specifications: Specification;
+    specifications: Specification[];
 
     @ManyToOne(() => Collection, e => e.products)
     collection: Collection;

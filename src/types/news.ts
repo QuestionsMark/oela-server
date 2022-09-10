@@ -1,8 +1,14 @@
-import { Img } from "./common";
+import { CreateImagePreview, Img } from "./common";
 
 export interface NewsInterface {
     id: string;
     name: string;
     description: string;
-    image: Img;
+    images: Img[];
+}
+
+export interface CreateNewsInterface {
+    name: string;
+    description: string;
+    preview: CreateImagePreview[];
 }

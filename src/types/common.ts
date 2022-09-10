@@ -3,6 +3,16 @@ export interface Img {
     alt: string;
 }
 
+export interface ImagePreview {
+    src: string;
+    size: number;
+    alt: string;
+}
+
+export interface CreateImagePreview {
+    alt: string;
+}
+
 export interface MulterFile {
     filename: string;
     size: number;
