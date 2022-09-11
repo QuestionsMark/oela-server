@@ -10,16 +10,18 @@ import { Product } from '../product/entities/product.entity';
 import { In, Like } from 'typeorm';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
+import { changeAltValidation, createCollectionValidation } from '../utils/validation.util';
 
 @Injectable()
 export class CollectionService {
   async create(createCollectionDto: CreateCollectionDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { description, name, preview, products } = JSON.parse(createCollectionDto.data) as CreateCollectionInterface;
+    const data = JSON.parse(createCollectionDto.data) as CreateCollectionInterface;
+    const { description, name, preview, products } = data;
     const images = files?.image ?? null;
 
-    // Walidacja
-
     try {
+      createCollectionValidation(data, images);
+
       let imagesList: FileItem[] = [];
       if (images) {
         imagesList = await saveFiles(images, preview);
@@ -66,12 +68,13 @@ export class CollectionService {
   }
 
   async update(id: string, updateCollectionDto: UpdateCollectionDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { description, name, preview, products } = JSON.parse(updateCollectionDto.data) as CreateCollectionInterface;
+    const data = JSON.parse(updateCollectionDto.data) as CreateCollectionInterface;
+    const { description, name, preview, products } = data;
     const images = files?.image ?? null;
 
-    // Walidacja
-
     try {
+      createCollectionValidation(data, images, true);
+
       const updatingCollection = await Collection.findOneOrFail({
         relations: ['products', 'images'],
         where: { id },
@@ -109,6 +112,7 @@ export class CollectionService {
   }
 
   async updateAlt(id: string, body: UpdateImageAltDto): Promise<ServerResponse> {
+    changeAltValidation(body);
     const file = await FileItem.findOneOrFail({ where: { id } });
     file.alt = body.alt;
     await file.save();

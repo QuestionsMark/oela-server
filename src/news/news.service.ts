@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { Like } from 'typeorm';
 import { FileItem } from '../file/file.entity';
 import { getServerResponse } from '../utils/response.util';
 import { CreateNewsInterface, MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
@@ -8,17 +9,18 @@ import { News } from './entities/news.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
-import { Like } from 'typeorm';
+import { changeAltValidation, createNewsValidation } from '../utils/validation.util';
 
 @Injectable()
 export class NewsService {
   async create(createNewsDto: CreateNewsDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { description, name, preview } = JSON.parse(createNewsDto.data) as CreateNewsInterface;
+    const data = JSON.parse(createNewsDto.data) as CreateNewsInterface;
+    const { description, name, preview } = data;
     const images = files?.image ?? null;
 
-    // Walidacja
-
     try {
+      createNewsValidation(data, images);
+
       let imagesList: FileItem[] = [];
       if (images) {
         imagesList = await saveFiles(images, preview);
@@ -62,12 +64,13 @@ export class NewsService {
   }
 
   async update(id: string, updateNewsDto: UpdateNewsDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { description, name, preview } = JSON.parse(updateNewsDto.data) as CreateNewsInterface;
+    const data = JSON.parse(updateNewsDto.data) as CreateNewsInterface;
+    const { description, name, preview } = data;
     const images = files?.image ?? null;
 
-    // Walidacja
-
     try {
+      createNewsValidation(data, images, true);
+
       const updatingNews = await News.findOneOrFail({ 
         relations: ['images'],
         where: { id },
@@ -100,6 +103,7 @@ export class NewsService {
   }
 
   async updateAlt(id: string, body: UpdateImageAltDto): Promise<ServerResponse> {
+    changeAltValidation(body);
     const file = await FileItem.findOneOrFail({ where: { id } });
     file.alt = body.alt;
     await file.save();

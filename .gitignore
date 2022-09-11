@@ -37,4 +37,4 @@ lerna-debug.log*
 src/config/config.ts
 src/config/db.config.ts
 src/config/email.config.ts
-storage
+storage/*

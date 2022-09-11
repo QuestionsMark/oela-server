@@ -1,5 +1,6 @@
 export interface ServerResponse {
     message: string;
+    problems?: string[];
 }
 
 export interface ClientResponseOK {

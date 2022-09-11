@@ -5,14 +5,18 @@ import { CreateCoverDto } from './dto/create-cover.dto';
 import { Cover } from './entities/cover.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
+import { createCoverValidation } from '../utils/validation.util';
 
 @Injectable()
 export class CoverService {
   async create(createCoverDto: CreateCoverDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { preview } = JSON.parse(createCoverDto.data) as CreateCoverInterface;
+    const data = JSON.parse(createCoverDto.data) as CreateCoverInterface;
+    const { preview } = data;
     const images = files?.image ?? null;
     
     try {
+      createCoverValidation(data, images);
+
       const imagesList = await saveFiles(images, preview);
       for (const image of imagesList) {
         const newCover = new Cover();

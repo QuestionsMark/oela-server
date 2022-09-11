@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProductType } from '../product-type/entities/product-type.entity';
 import { getServerResponse } from '../utils/response.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
@@ -12,16 +12,18 @@ import { Specification } from './entities/specification.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { FileItem } from '../file/file.entity';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
+import { changeAltValidation, createProductValidation } from 'src/utils/validation.util';
 
 @Injectable()
 export class ProductService {
   async create(createProductDto: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
-    const { description, hashtags, name, productType, shopLink, specifications, preview } = JSON.parse(createProductDto.data) as CreateProductDataInterface;
+    const data = JSON.parse(createProductDto.data) as CreateProductDataInterface;
+    const { description, hashtags, name, productType, shopLink, specifications, preview } = data;
     const images = files?.image ?? null;
-
-    // Walidacja
-
+    
     try {
+      createProductValidation(data, images);
+
       let imagesList: FileItem[] = [];
       if (images) {
         imagesList = await saveFiles(images, preview);
@@ -94,12 +96,13 @@ export class ProductService {
     updateProductDto: UpdateProductDto,
     files: MulterDiskUploadedFiles,
   ): Promise<ServerResponse> {
-    const { description, hashtags, name, productType, shopLink, specifications, preview } = JSON.parse(updateProductDto.data) as CreateProductDataInterface;
+    const data = JSON.parse(updateProductDto.data) as CreateProductDataInterface;
+    const { description, hashtags, name, productType, shopLink, specifications, preview } = data;
     const images = files?.image ?? null;
 
-    // Walidacja
-
     try {
+      createProductValidation(data, images, true);
+
       const updatingProduct = await Product.findOneOrFail({
         relations: ['specifications', 'images'],
         where: { id },
@@ -164,6 +167,7 @@ export class ProductService {
   }
 
   async updateAlt(id: string, body: UpdateImageAltDto): Promise<ServerResponse> {
+    changeAltValidation(body);
     const file = await FileItem.findOneOrFail({ where: { id } });
     file.alt = body.alt;
     await file.save();
