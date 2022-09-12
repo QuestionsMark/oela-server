@@ -15,6 +15,7 @@ import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createProductValidation } from '../utils/validation.util';
 import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
 import { maxLimit } from '../utils/max-count.util';
+import { filterImages, filterImagesInArray } from '../utils/images-filter.util';
 
 @Injectable()
 export class ProductService {
@@ -85,7 +86,7 @@ export class ProductService {
       skip: (page - 1) * limit,
       take: maxLimit(limit),
     });
-    return { count, results: sortImagesInArray(results) };
+    return { count, results: filterImagesInArray(sortImagesInArray(results)) };
   }
 
   async findOne(id: string): Promise<Product> {
@@ -93,7 +94,7 @@ export class ProductService {
       relations: ['images', 'specifications', 'productType', 'hashtags'],
       where: { id },
     });
-    return sortImages(product);
+    return filterImages(sortImages(product));
   }
 
   async update(
