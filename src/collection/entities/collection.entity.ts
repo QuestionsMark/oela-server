@@ -1,6 +1,6 @@
 import { FileItem } from "src/file/file.entity";
 import { Product } from "src/product/entities/product.entity";
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Collection extends BaseEntity {
@@ -18,10 +18,7 @@ export class Collection extends BaseEntity {
     })
     description: string;
     
-    @Column({
-        type: 'date',
-        default: () => 'CURRENT_TIMESTAMP',
-    })
+    @CreateDateColumn()
     createdAt: Date;
 
     @OneToMany(() => FileItem, e => e.collection)

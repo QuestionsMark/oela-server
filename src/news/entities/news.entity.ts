@@ -1,5 +1,5 @@
 import { FileItem } from '../../file/file.entity';
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class News extends BaseEntity {
@@ -17,10 +17,7 @@ export class News extends BaseEntity {
     })
     description: string;
 
-    @Column({
-        type: 'date',
-        default: () => 'CURRENT_TIMESTAMP',
-    })
+    @CreateDateColumn()
     createdAt: Date;
 
     @OneToMany(() => FileItem, e => e.news)

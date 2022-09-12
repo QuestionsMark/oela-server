@@ -1,5 +1,5 @@
 import { Product } from "../../product/entities/product.entity";
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
 
 @Entity()
 export class Hashtag extends BaseEntity {
@@ -12,10 +12,7 @@ export class Hashtag extends BaseEntity {
     })
     name: string;
 
-    @Column({
-        type: 'date',
-        default: () => 'CURRENT_TIMESTAMP',
-    })
+    @CreateDateColumn()
     createdAt: Date;
 
     @ManyToMany(() => Product, e => e.hashtags)

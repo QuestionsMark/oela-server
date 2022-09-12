@@ -1,4 +1,4 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, OneToMany } from 'typeorm';
+import { Entity, BaseEntity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, OneToMany, CreateDateColumn } from 'typeorm';
 import { FileItem } from '../../file/file.entity';
 import { ProductType } from '../../product-type/entities/product-type.entity';
 import { Hashtag } from '../../hashtag/entities/hashtag.entity';
@@ -26,10 +26,7 @@ export class Product extends BaseEntity {
     })
     shopLink: string;
 
-    @Column({
-        type: 'date',
-        default: () => 'CURRENT_TIMESTAMP',
-    })
+    @CreateDateColumn()
     createdAt: Date;
     
     @OneToMany(() => FileItem, e => e.product)
