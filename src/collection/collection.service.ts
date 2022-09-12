@@ -156,7 +156,10 @@ export class CollectionService {
     await unlinkFiles(images);
 
     const products = await Product.find({ relations: ['collection'] });
-    const inCollection = products.filter(p => p.collection.id === id);
+    console.log({products});
+    
+    const inCollection = products.filter(p => p.collection?.id === id);
+    console.log({inCollection});
     if (inCollection.length !== 0) {
       collection.products = [];
       await collection.save();
