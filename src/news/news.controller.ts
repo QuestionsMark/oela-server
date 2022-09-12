@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UploadedFiles, UseInterceptors, Put, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UploadedFiles, UseInterceptors, Put, Patch, UseGuards, HttpCode } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
@@ -7,12 +7,15 @@ import { MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage, multerStorageDir } from '../utils/storage.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/news')
 export class NewsController {
   constructor(private readonly newsService: NewsService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -50,6 +53,7 @@ export class NewsController {
   }
 
   @Put('/:id')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -72,6 +76,7 @@ export class NewsController {
   }
 
   @Patch('/:id/image-alt')
+  @UseGuards(AuthGuard('jwt'))
   uptadeAlt(
     @Param('id') id: string,
     @Body() body: UpdateImageAltDto,
@@ -80,6 +85,7 @@ export class NewsController {
   }
 
   @Delete('/:id/image/:imageId')
+  @UseGuards(AuthGuard('jwt'))
   deleteImage(
     @Param('id') id: string,
     @Param('imageId') imageId: string,
@@ -88,6 +94,7 @@ export class NewsController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string,
   ): Promise<ServerResponse> {

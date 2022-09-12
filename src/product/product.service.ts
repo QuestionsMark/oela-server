@@ -12,7 +12,9 @@ import { Specification } from './entities/specification.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { FileItem } from '../file/file.entity';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
-import { changeAltValidation, createProductValidation } from 'src/utils/validation.util';
+import { changeAltValidation, createProductValidation } from '../utils/validation.util';
+import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class ProductService {
@@ -80,15 +82,18 @@ export class ProductService {
     const [results, count] = await Product.findAndCount({
       relations: ['images'],
       where: { name: Like(`%${search}%`) },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
     });
-    return { count, results };
+    return { count, results: sortImagesInArray(results) };
   }
 
   async findOne(id: string): Promise<Product> {
-    return Product.findOne({
+    const product = await Product.findOne({
       relations: ['images', 'specifications', 'productType', 'hashtags'],
       where: { id },
     });
+    return sortImages(product);
   }
 
   async update(

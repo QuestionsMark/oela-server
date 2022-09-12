@@ -111,7 +111,7 @@ export const createNewsValidation = (data: CreateNewsInterface, images: MulterFi
     const { description, name, preview } = data;
 
     if (!update) {
-        if (!images || images.length < 2) {
+        if (!images || images.length < 1) {
             errors.push('Nowość musi zawierać conajmniej 1 grafikę.');
         }
     }

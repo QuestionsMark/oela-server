@@ -1,4 +1,4 @@
-import { BaseEntity, Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Product } from "../product/entities/product.entity";
 import { Collection } from "src/collection/entities/collection.entity";
 import { News } from "src/news/entities/news.entity";
@@ -20,6 +20,9 @@ export class FileItem extends BaseEntity {
         default: null,
     })
     alt: string | null;
+
+    @CreateDateColumn()
+    createdAt: Date;
 
     @ManyToOne(() => Product, e => e.images)
     product: Product;

@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode } from '@nestjs/common';
 import { HashtagService } from './hashtag.service';
 import { CreateHashtagDto } from './dto/create-hashtag.dto';
 import { Hashtag } from './entities/hashtag.entity';
 import { PaginationResponse, ServerResponse } from '../types';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/hashtag')
 export class HashtagController {
   constructor(private readonly hashtagService: HashtagService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   create(
     @Body() createHashtagDto: CreateHashtagDto,
   ): Promise<ServerResponse> {
@@ -30,6 +33,7 @@ export class HashtagController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string
   ): Promise<ServerResponse> {

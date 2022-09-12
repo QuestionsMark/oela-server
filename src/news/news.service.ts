@@ -10,6 +10,8 @@ import { saveFiles } from '../utils/save-files.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createNewsValidation } from '../utils/validation.util';
+import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class NewsService {
@@ -52,15 +54,18 @@ export class NewsService {
     const [results, count] = await News.findAndCount({
       relations: ['images'],
       where: { name: Like(`%${search}%`) },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
     });
-    return { count, results };
+    return { count, results: sortImagesInArray(results) };
   }
 
   async findOne(id: string): Promise<News> {
-    return News.findOneOrFail({
+    const news = await News.findOneOrFail({
       relations: ['images'],
       where: { id },
     });
+    return sortImages(news);
   }
 
   async update(id: string, updateNewsDto: UpdateNewsDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {

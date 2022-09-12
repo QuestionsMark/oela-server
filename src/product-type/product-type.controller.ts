@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseGuards, HttpCode } from '@nestjs/common';
 import { ProductTypeService } from './product-type.service';
 import { CreateProductTypeDto } from './dto/create-product-type.dto';
 import { PaginationResponse, ServerResponse } from '../types';
 import { ProductType } from './entities/product-type.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/product-type')
 export class ProductTypeController {
   constructor(private readonly productTypeService: ProductTypeService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   create(
     @Body() createProductTypeDto: CreateProductTypeDto,
   ): Promise<ServerResponse> {
@@ -30,6 +33,7 @@ export class ProductTypeController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string
   ): Promise<ServerResponse> {

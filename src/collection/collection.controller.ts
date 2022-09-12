@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles, Put, UseGuards, HttpCode } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage, multerStorageDir } from '../utils/storage.util';
 import { MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
@@ -7,12 +7,15 @@ import { CreateCollectionDto } from './dto/create-collection.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import { Collection } from './entities/collection.entity';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/collection')
 export class CollectionController {
   constructor(private readonly collectionService: CollectionService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -50,6 +53,7 @@ export class CollectionController {
   }
 
   @Put('/:id')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -71,6 +75,7 @@ export class CollectionController {
   }
 
   @Patch('/:id/image-alt')
+  @UseGuards(AuthGuard('jwt'))
   uptadeAlt(
     @Param('id') id: string,
     @Body() body: UpdateImageAltDto,
@@ -79,6 +84,7 @@ export class CollectionController {
   }
 
   @Delete('/:id/image/:imageId')
+  @UseGuards(AuthGuard('jwt'))
   deleteImage(
     @Param('id') id: string,
     @Param('imageId') imageId: string,
@@ -87,6 +93,7 @@ export class CollectionController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string,
   ): Promise<ServerResponse> {

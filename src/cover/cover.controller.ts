@@ -1,16 +1,19 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, UseInterceptors, UploadedFiles, UseGuards, HttpCode } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage, multerStorageDir } from '../utils/storage.util';
 import { MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
 import { CoverService } from './cover.service';
 import { CreateCoverDto } from './dto/create-cover.dto';
 import { Cover } from './entities/cover.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/cover')
 export class CoverController {
   constructor(private readonly coverService: CoverService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -40,6 +43,7 @@ export class CoverController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string,
   ): Promise<ServerResponse> {

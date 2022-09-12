@@ -3,9 +3,9 @@ import { Product } from '../product/entities/product.entity';
 import { getServerResponse } from '../utils/response.util';
 import { PaginationResponse, ServerResponse } from '../types';
 import { CreateHashtagDto } from './dto/create-hashtag.dto';
-import { UpdateHashtagDto } from './dto/update-hashtag.dto';
 import { Hashtag } from './entities/hashtag.entity';
-import { DataSource, In, Like } from 'typeorm';
+import { Like } from 'typeorm';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class HashtagService {
@@ -20,6 +20,8 @@ export class HashtagService {
   async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<Hashtag[]>> {
     const [results, count] = await Hashtag.findAndCount({
       where: { name: Like(`%${search}%`) },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
     });
     return { count, results };
   }

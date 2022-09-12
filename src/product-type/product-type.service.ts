@@ -3,8 +3,9 @@ import { getServerResponse } from '../utils/response.util';
 import { PaginationResponse, ServerResponse } from '../types';
 import { CreateProductTypeDto } from './dto/create-product-type.dto';
 import { ProductType } from './entities/product-type.entity';
-import { Product } from 'src/product/entities/product.entity';
+import { Product } from '../product/entities/product.entity';
 import { Like } from 'typeorm';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class ProductTypeService {
@@ -19,6 +20,8 @@ export class ProductTypeService {
   async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<ProductType[]>> {
     const [results, count] = await ProductType.findAndCount({
       where: { name: Like(`%${search}%`) },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
     });
     return { count, results };
   }

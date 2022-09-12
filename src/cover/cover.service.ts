@@ -6,6 +6,7 @@ import { Cover } from './entities/cover.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { createCoverValidation } from '../utils/validation.util';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class CoverService {
@@ -36,7 +37,11 @@ export class CoverService {
   }
 
   async findAll(page: number, limit: number): Promise<PaginationResponse<Cover[]>> {
-    const [results, count] = await Cover.findAndCount({ relations: ['image'] });
+    const [results, count] = await Cover.findAndCount({
+      relations: ['image'],
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
+    });
     return { count, results };
   }
 

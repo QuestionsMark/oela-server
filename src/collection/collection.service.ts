@@ -11,6 +11,8 @@ import { In, Like } from 'typeorm';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createCollectionValidation } from '../utils/validation.util';
+import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
+import { maxLimit } from '../utils/max-count.util';
 
 @Injectable()
 export class CollectionService {
@@ -56,15 +58,18 @@ export class CollectionService {
     const [results, count] = await Collection.findAndCount({
       relations: ['images'],
       where: { name: Like(`%${search}%`) },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
     });
-    return { count, results };
+    return { count, results: sortImagesInArray(results) };
   }
 
   async findOne(id: string): Promise<Collection> {
-    return Collection.findOne({
+    const collection = await Collection.findOne({
       relations: ['images', 'products'],
       where: { id },
     });
+    return sortImages(collection);
   }
 
   async update(id: string, updateCollectionDto: UpdateCollectionDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {

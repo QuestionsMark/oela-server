@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, UploadedFiles, Put, UseGuards, HttpCode } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -7,12 +7,15 @@ import { MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { multerStorage, multerStorageDir } from '../utils/storage.util';
 import { UpdateImageAltDto } from 'src/file/dto/image-alt.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(201)
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -50,6 +53,7 @@ export class ProductController {
   }
 
   @Put('/:id')
+  @UseGuards(AuthGuard('jwt'))
   @UseInterceptors(
     FileFieldsInterceptor([
       {
@@ -72,6 +76,7 @@ export class ProductController {
   }
 
   @Patch('/:id/image-alt')
+  @UseGuards(AuthGuard('jwt'))
   uptadeAlt(
     @Param('id') id: string,
     @Body() body: UpdateImageAltDto,
@@ -80,6 +85,7 @@ export class ProductController {
   }
 
   @Delete('/:id/image/:imageId')
+  @UseGuards(AuthGuard('jwt'))
   deleteImage(
     @Param('id') id: string,
     @Param('imageId') imageId: string,
@@ -88,6 +94,7 @@ export class ProductController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'))
   remove(
     @Param('id') id: string,
   ): Promise<ServerResponse> {
