@@ -45,6 +45,11 @@ export class NewsController {
     return this.newsService.findAll(search, page, limit);
   }
 
+  @Get('/last')
+  findLast(): Promise<News[]> {
+    return this.newsService.findLast();
+  }
+  
   @Get('/:id')
   findOne(
     @Param('id') id: string,

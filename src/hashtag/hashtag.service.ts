@@ -19,7 +19,7 @@ export class HashtagService {
 
   async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<Hashtag[]>> {
     const [results, count] = await Hashtag.findAndCount({
-      where: { name: Like(`%${search}%`) },
+      where: { name: Like(`%${search ?? ''}%`) },
       skip: (page - 1) * limit,
       take: maxLimit(limit),
     });

@@ -89,6 +89,16 @@ export class ProductService {
     return { count, results: filterImagesInArray(sortImagesInArray(results)) };
   }
 
+  async findAllPictures(search: string, page: number, limit: number): Promise<PaginationResponse<Product[]>> {
+    const [results, count] = await Product.findAndCount({
+      relations: ['images'],
+      where: { name: Like(`%${search}%`), productType: { id: '9876ee68-6bcd-4d07-a423-b8bce970b680' } },
+      skip: (page - 1) * limit,
+      take: maxLimit(limit),
+    });
+    return { count, results: filterImagesInArray(sortImagesInArray(results)) };
+  }
+
   async findOne(id: string): Promise<Product> {
     const product = await Product.findOne({
       relations: ['images', 'specifications', 'productType', 'hashtags'],

@@ -11,7 +11,9 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('/product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+  ) {}
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
@@ -45,6 +47,14 @@ export class ProductController {
     return this.productService.findAll(search, page, limit);
   }
 
+  @Get('/picture')
+  findAllPictures(
+    @Query('search') search: string, 
+    @Query('page') page: number, 
+    @Query('limit') limit: number,
+  ): Promise<PaginationResponse<Product[]>> {
+    return this.productService.findAllPictures(search, page, limit);
+  }
   @Get('/:id')
   findOne(
     @Param('id') id: string

@@ -13,6 +13,7 @@ import { changeAltValidation, createNewsValidation } from '../utils/validation.u
 import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
 import { maxLimit } from '../utils/max-count.util';
 import { filterImages, filterImagesInArray } from '../utils/images-filter.util';
+import { skip } from '../utils/skip.util';
 
 @Injectable()
 export class NewsService {
@@ -55,10 +56,18 @@ export class NewsService {
     const [results, count] = await News.findAndCount({
       relations: ['images'],
       where: { name: Like(`%${search}%`) },
-      skip: (page - 1) * limit,
+      skip: skip(page, limit),
       take: maxLimit(limit),
     });
     return { count, results: filterImagesInArray(sortImagesInArray(results)) };
+  }
+
+  async findLast(): Promise<News[]> {
+    return filterImagesInArray(sortImagesInArray(await News.find({
+      relations: ['images'],
+      take: 5,
+      order: { createdAt: -1 },
+    })))
   }
 
   async findOne(id: string): Promise<News> {
