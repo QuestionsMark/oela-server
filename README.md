@@ -1,73 +1,113 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<div id="top"></div>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![Contributors][contributors-shield]][contributors-url]
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+<br />
+<div align="center">
+  <a href="https://oela.pl">
+    <img src="./readme/logo.png" alt="oela.pl logo" width="200" height="136">
+  </a>
 
-## Description
+<h1 align="center">oela.pl - API</h1>
+  <p align="center">
+    Rest Api dla platformy oela.pl.
+    <br />
+    <br />
+  </p>
+</div>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[![Typescript][typescript]][typescript-url]
+[![Nest][nest]][nest-url]
+[![MySQL][mysql]][mysql-url]
+[![JsonWebToken][jsonwebtoken]][jsonwebtoken-url]
 
-## Installation
+<details>
+  <summary>Spis treści</summary>
+  <ol>
+    <li>
+      <a href="#o-projekcie">O projekcie</a>
+    </li>
+    <li>
+      <a href="#jak-zacząć">Jak zacząć</a>
+    </li>
+  </ol>
+</details>
 
-```bash
-$ npm install
+## O projekcie
+
+RESTFul API dla platformy oela.pl oparte na NestJS i MySQL.
+
+## Jak zacząć
+
+1. Sklonuj repozytorium
+   ```sh
+   git clone https://github.com/QuestionsMark/oela-server.git
+   ```
+2. Przejdź do katalogu projektu
+   ```sh
+   cd oela-server
+   ```
+3. Zainstaluj wszystkie zależności
+   ```sh
+   npm install
+   ```
+4. Stwórz plik konfiguracyjny `src/config/config.ts` na podstawie pliku `src/config/config.example.ts`
+
+```js
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { ValidationPipe } from '@nestjs/common';
+import { CookieOptions } from 'express';
+export const CORS_CONFIG: CorsOptions = {
+  origin: 'http://localhost:3000',
+  credentials: true,
+};
+export const VALIDATION_PIPE_CONFIG = new ValidationPipe({
+  disableErrorMessages: true,
+  whitelist: true,
+  forbidNonWhitelisted: true,
+  transform: true,
+  transformOptions: {
+    enableImplicitConversion: true,
+  },
+});
+export const SECRET_KEY = `fashdbfuahdbfuhasdbfiad aishdbf habdifbasih dbfiahsdfisjn iajdf`; // losowy ciąg znaków
+export const COOKIES_CONFIG: CookieOptions = {
+  secure: false,
+  domain: 'localhost',
+  httpOnly: true,
+};
 ```
 
-## Running the app
+5. Stwórz plik konfiguracyjny `src/config/db.config.ts` na podstawie pliku `src/config/db.config.example.ts`
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```js
+import { DataSource } from 'typeorm';
+export const DB_CONNECTION = new DataSource({
+  type: 'mysql',
+  host: 'localhost',
+  port: 3306,
+  username: '<DB_USER>',
+  password: '<DB_PASSWORD>',
+  database: '<DB_NAME>',
+  entities: ['dist/**/**.entity{.ts,.js}'],
+  bigNumberStrings: false,
+  logging: true,
+  synchronize: false,
+});
 ```
 
-## Test
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+[contributors-shield]: https://img.shields.io/github/contributors/QuestionsMark/oela-server.svg?style=for-the-badge
+[contributors-url]: https://github.com/QuestionsMark/oela-server/graphs/contributors
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/in/s%C5%82awomir-dziurman-75464b205/
+[typescript]: https://img.shields.io/badge/typescript-20232A?style=for-the-badge&logo=typescript&logoColor=3178c6
+[typescript-url]: https://www.typescriptlang.org/
+[nest]: https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white
+[nest-url]: https://nestjs.com/
+[mysql]: https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white
+[mysql-url]: https://www.mysql.com/
+[jsonwebtoken]: https://img.shields.io/badge/json%20web%20tokens-323330?style=for-the-badge&logo=json-web-tokens&logoColor=pink
+[jsonwebtoken-url]: https://www.npmjs.com/package/jsonwebtoken

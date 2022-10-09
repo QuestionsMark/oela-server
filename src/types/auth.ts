@@ -10,3 +10,7 @@ export interface CreateToken {
     accessToken: string;
     expiresIn: number;
 }
+
+export interface IsAccountResponse {
+    results: boolean;
+}

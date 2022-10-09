@@ -1,5 +1,6 @@
 import { ServerResponse } from "../types";
 
-export const getServerResponse = (status: number, message: string): ServerResponse => {
-    return { status, message };
+export const getServerResponse = (message: string, problems?: string[] | null): ServerResponse => {
+    if (problems) return { message, problems };
+    return { message };
 };

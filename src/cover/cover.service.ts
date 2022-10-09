@@ -1,26 +1,59 @@
 import { Injectable } from '@nestjs/common';
+import { getServerResponse } from '../utils/response.util';
+import { CreateCoverInterface, MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
 import { CreateCoverDto } from './dto/create-cover.dto';
-import { UpdateCoverDto } from './dto/update-cover.dto';
+import { Cover } from './entities/cover.entity';
+import { saveFiles } from '../utils/save-files.util';
+import { unlinkFiles } from '../utils/unlink-files.util';
+import { createCoverValidation } from '../utils/validation.util';
+import { maxLimit, skip } from '../utils/pagination.util';
 
 @Injectable()
 export class CoverService {
-  create(createCoverDto: CreateCoverDto) {
-    return 'This action adds a new cover';
+  async create(createCoverDto: CreateCoverDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
+    const data = JSON.parse(createCoverDto.data) as CreateCoverInterface;
+    const { preview } = data;
+    const images = files?.image ?? null;
+    
+    try {
+      createCoverValidation(data, images);
+
+      const imagesList = await saveFiles(images, preview);
+      for (const image of imagesList) {
+        const newCover = new Cover();
+        await newCover.save();
+        newCover.image = image;
+        await newCover.save();
+      }
+      return getServerResponse('Cover has been successfully added!');
+    } catch (e) {
+      try {
+        if (images) {
+          await unlinkFiles(images);
+        }
+      } catch (e2) {}
+      throw e;
+    }
   }
 
-  findAll() {
-    return `This action returns all cover`;
+  async findAll(page: number, limit: number): Promise<PaginationResponse<Cover[]>> {
+    const [results, count] = await Cover.findAndCount({
+      relations: ['image'],
+      skip: skip(page, limit),
+      take: maxLimit(limit),
+    });
+    return { count, results: results.sort((a, b) => +a.image.createdAt - +b.image.createdAt) };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cover`;
-  }
-
-  update(id: number, updateCoverDto: UpdateCoverDto) {
-    return `This action updates a #${id} cover`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cover`;
+  async remove(id: string): Promise<ServerResponse> {
+    const cover = await Cover.findOneOrFail({
+      relations: ['image'],
+      where: { id },
+    });
+    const image = cover.image;
+    await cover.remove();
+    await unlinkFiles([image]);
+    await image.remove();
+    return getServerResponse('Cover has been successfully removed!');
   }
 }
