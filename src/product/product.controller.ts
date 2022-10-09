@@ -43,8 +43,10 @@ export class ProductController {
     @Query('search') search: string, 
     @Query('page') page: number, 
     @Query('limit') limit: number,
+    @Query('hashtags') hashtags: string[],
+    @Query('productType') productType: string,
   ): Promise<PaginationResponse<Product[]>> {
-    return this.productService.findAll(search, page, limit);
+    return this.productService.findAll(search, page, limit, hashtags, productType);
   }
 
   @Get('/picture')

@@ -6,8 +6,7 @@ import { Cover } from './entities/cover.entity';
 import { saveFiles } from '../utils/save-files.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
 import { createCoverValidation } from '../utils/validation.util';
-import { maxLimit } from '../utils/max-count.util';
-import { skip } from '../utils/skip.util';
+import { maxLimit, skip } from '../utils/pagination.util';
 
 @Injectable()
 export class CoverService {

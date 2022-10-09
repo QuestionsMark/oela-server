@@ -11,9 +11,8 @@ import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createNewsValidation } from '../utils/validation.util';
 import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
-import { maxLimit } from '../utils/max-count.util';
 import { filterImages, filterImagesInArray } from '../utils/images-filter.util';
-import { skip } from '../utils/skip.util';
+import { maxLimit, skip } from '../utils/pagination.util';
 
 @Injectable()
 export class NewsService {
@@ -55,7 +54,7 @@ export class NewsService {
   async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<News[]>> {
     const [results, count] = await News.findAndCount({
       relations: ['images'],
-      where: { name: Like(`%${search}%`) },
+      where: { name: Like(`%${search ?? ''}%`) },
       skip: skip(page, limit),
       take: maxLimit(limit),
     });

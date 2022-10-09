@@ -12,8 +12,8 @@ import { unlinkFiles } from '../utils/unlink-files.util';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createCollectionValidation } from '../utils/validation.util';
 import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
-import { maxLimit } from '../utils/max-count.util';
 import { filterImages, filterImagesInArray } from '../utils/images-filter.util';
+import { maxLimit, skip } from '../utils/pagination.util';
 
 @Injectable()
 export class CollectionService {
@@ -58,8 +58,8 @@ export class CollectionService {
   async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<Collection[]>> {
     const [results, count] = await Collection.findAndCount({
       relations: ['images'],
-      where: { name: Like(`%${search}%`) },
-      skip: (page - 1) * limit,
+      where: { name: Like(`%${search ?? ''}%`) },
+      skip: skip(page, limit),
       take: maxLimit(limit),
     });
     return { count, results: filterImagesInArray(sortImagesInArray(results)) };
@@ -67,7 +67,7 @@ export class CollectionService {
 
   async findOne(id: string): Promise<Collection> {
     const collection = await Collection.findOne({
-      relations: ['images', 'products'],
+      relations: ['images', 'products', 'products.images'],
       where: { id },
     });
     return filterImages(sortImages(collection));

@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ProductType } from '../product-type/entities/product-type.entity';
 import { getServerResponse } from '../utils/response.util';
 import { unlinkFiles } from '../utils/unlink-files.util';
-import { In, Like } from 'typeorm';
+import { DataSource, In, Like } from 'typeorm';
 import { Hashtag } from '../hashtag/entities/hashtag.entity';
 import { CreateProductDataInterface, MulterDiskUploadedFiles, PaginationResponse, ServerResponse } from '../types';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -14,11 +14,15 @@ import { FileItem } from '../file/file.entity';
 import { UpdateImageAltDto } from '../file/dto/image-alt.dto';
 import { changeAltValidation, createProductValidation } from '../utils/validation.util';
 import { sortImages, sortImagesInArray } from '../utils/sort-images.util';
-import { maxLimit } from '../utils/max-count.util';
 import { filterImages, filterImagesInArray } from '../utils/images-filter.util';
+import { maxLimit, skip } from '../utils/pagination.util';
 
 @Injectable()
 export class ProductService {
+  constructor(
+    @Inject(DataSource) private dataSource: DataSource,
+  ) {}
+
   async create(createProductDto: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ServerResponse> {
     const data = JSON.parse(createProductDto.data) as CreateProductDataInterface;
     const { description, hashtags, name, productType, shopLink, specifications, preview } = data;
@@ -79,21 +83,73 @@ export class ProductService {
     }
   }
 
-  async findAll(search: string, page: number, limit: number): Promise<PaginationResponse<Product[]>> {
-    const [results, count] = await Product.findAndCount({
-      relations: ['images'],
-      where: { name: Like(`%${search}%`) },
-      skip: (page - 1) * limit,
-      take: maxLimit(limit),
-    });
+  async findAll(
+    search: string,
+    page: number,
+    limit: number,
+    hashtags: string[] | undefined,
+    productType: string | undefined,
+  ): Promise<PaginationResponse<Product[]>> {
+    // const qb = this.dataSource.createQueryBuilder()
+    //   .select([
+    //     'product',
+    //     'images',
+    //     'hashtags',
+    //     'productType',
+    //   ])
+    //   .from(Product, 'product')
+    //   .leftJoin('product.images', 'images')
+    //   .leftJoin('product.hashtags', 'hashtags')
+    //   .leftJoin('product.productType', 'productType')
+    //   .where('product.name LIKE :name', { name: `%${search ?? ''}%`})
+    //   .skip(skip(page, limit))
+    //   .take(maxLimit(limit));
+
+    let results = [];
+    let count = 0;
+    if (hashtags && hashtags.length) {
+      // qb.andWhere('hashtags.id IN (:...hashtags)', { hashtags });
+      // for (const hashtag of hashtags) {
+      //   console.log({ hashtag });
+      // }
+
+      const [data, amount] = await Product.findAndCount({
+        relations: ['images'],
+        where: {
+          name: Like(`%${search}%`),
+          productType: { id: productType },
+          hashtags: { id: In(hashtags) },
+        },
+        skip: skip(page, limit),
+        take: maxLimit(limit),
+      });
+      results = data;
+      count = amount;
+    } else {
+      const [data, amount] = await Product.findAndCount({
+        relations: ['images'],
+        where: {
+          name: Like(`%${search}%`),
+          productType: { id: productType },
+        },
+        skip: skip(page, limit),
+        take: maxLimit(limit),
+      });
+      results = data;
+      count = amount;
+    }
+    // if (productType) {
+    //   qb.andWhere('productType.id = :productType', { productType })
+    // }
+    // const [results, count] = await qb.getManyAndCount();
     return { count, results: filterImagesInArray(sortImagesInArray(results)) };
   }
 
   async findAllPictures(search: string, page: number, limit: number): Promise<PaginationResponse<Product[]>> {
     const [results, count] = await Product.findAndCount({
       relations: ['images'],
-      where: { name: Like(`%${search}%`), productType: { id: '9876ee68-6bcd-4d07-a423-b8bce970b680' } },
-      skip: (page - 1) * limit,
+      where: { name: Like(`%${search ?? ''}%`), productType: { id: '9876ee68-6bcd-4d07-a423-b8bce970b680' } },
+      skip: skip(page, limit),
       take: maxLimit(limit),
     });
     return { count, results: filterImagesInArray(sortImagesInArray(results)) };
