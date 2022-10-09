@@ -5,7 +5,7 @@
 
 <br />
 <div align="center">
-  <a href="https://animark.pl">
+  <a href="https://oela.pl">
     <img src="./readme/logo.png" alt="oela.pl logo" width="200" height="136">
   </a>
 
@@ -58,12 +58,10 @@ RESTFul API dla platformy oela.pl oparte na NestJS i MySQL.
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { ValidationPipe } from '@nestjs/common';
 import { CookieOptions } from 'express';
-
 export const CORS_CONFIG: CorsOptions = {
   origin: 'http://localhost:3000',
   credentials: true,
 };
-
 export const VALIDATION_PIPE_CONFIG = new ValidationPipe({
   disableErrorMessages: true,
   whitelist: true,
@@ -73,9 +71,7 @@ export const VALIDATION_PIPE_CONFIG = new ValidationPipe({
     enableImplicitConversion: true,
   },
 });
-
 export const SECRET_KEY = `fashdbfuahdbfuhasdbfiad aishdbf habdifbasih dbfiahsdfisjn iajdf`; // losowy ciąg znaków
-
 export const COOKIES_CONFIG: CookieOptions = {
   secure: false,
   domain: 'localhost',
@@ -87,7 +83,6 @@ export const COOKIES_CONFIG: CookieOptions = {
 
 ```js
 import { DataSource } from 'typeorm';
-
 export const DB_CONNECTION = new DataSource({
   type: 'mysql',
   host: 'localhost',
