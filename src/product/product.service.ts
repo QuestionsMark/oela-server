@@ -146,9 +146,12 @@ export class ProductService {
   }
 
   async findAllPictures(search: string, page: number, limit: number): Promise<PaginationResponse<Product[]>> {
+    const pictureType = await ProductType.findOne({
+      where: { name: 'obraz' },
+    });
     const [results, count] = await Product.findAndCount({
       relations: ['images'],
-      where: { name: Like(`%${search ?? ''}%`), productType: { id: '9876ee68-6bcd-4d07-a423-b8bce970b680' } },
+      where: { name: Like(`%${search ?? ''}%`), productType: { id: pictureType ? pictureType.id : '' } },
       skip: skip(page, limit),
       take: maxLimit(limit),
     });

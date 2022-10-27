@@ -57,6 +57,7 @@ export class ProductController {
   ): Promise<PaginationResponse<Product[]>> {
     return this.productService.findAllPictures(search, page, limit);
   }
+  
   @Get('/:id')
   findOne(
     @Param('id') id: string
